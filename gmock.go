@@ -5,15 +5,15 @@ import (
 )
 
 type GMock struct {
-	Target   reflect.Value
-	Original reflect.Value
+	target   reflect.Value
+	original reflect.Value
 }
 
 func MockTarget(targetVar interface{}) *GMock {
 	mock := &GMock{}
-	mock.Target = reflect.ValueOf(targetVar).Elem()
-	mock.Target = reflect.New(mock.Target.Type()).Elem()
-	mock.Original.Set(mock.Target)
+	mock.target = reflect.ValueOf(targetVar).Elem()
+	mock.target = reflect.New(mock.target.Type()).Elem()
+	mock.original.Set(mock.target)
 	return mock
 }
 
@@ -27,12 +27,20 @@ func (self *GMock) Replace(mockValue interface{}) {
 	replacement := reflect.ValueOf(mockValue)
 
 	if !replacement.IsValid() {
-		replacement = reflect.Zero(self.Target.Type())
+		replacement = reflect.Zero(self.target.Type())
 	}
 
-	self.Target.Set(replacement)
+	self.target.Set(replacement)
 }
 
 func (self *GMock) Restore() {
-	self.Target.Set(self.Original)
+	self.target.Set(self.original)
+}
+
+func (self *GMock) GetTarget() reflect.Value {
+	return self.target
+}
+
+func (self *GMock) GetOriginal() reflect.Value {
+	return self.original
 }
