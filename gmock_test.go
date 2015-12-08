@@ -6,15 +6,26 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const (
+	kOriginalValue = "original value"
+	kMockValue = "mock value"
+)
+
 var _ = Describe("GMock", func() {
-	var subject *GMock
+	var subject *GMock // Test subject
+
 	var constructSubject func()
 	var panicked bool
 
-	BeforeEach(func() {
+	var someVar string // Target variable to mock in our tests
+	var mockValue string // Variable containing the mock value to be set to the target
+
+	BeforeEach(func() { // Reset all base values for each test
 		subject = nil
 		constructSubject = nil
 		panicked = false
+		someVar = kOriginalValue
+		mockValue = kMockValue
 	})
 
 	var panicRecover = func() {
@@ -26,29 +37,9 @@ var _ = Describe("GMock", func() {
 		constructSubject()
 	})
 
-	var validMockTests = func(target interface{}) {
-		It("should not panic", func() {
-			Expect(panicked).To(BeFalse())
-		})
-
-		It("should return a valid GMock object", func() {
-			Expect(subject).NotTo(BeNil())
-		})
-
-		It("should have backed up the pointer to the original target", func() {
-			var originalPtr = subject.GetOriginal().Addr().Interface()
-			Expect(originalPtr).To(Equal(target))
-		})
-
-		It("should not have a mock value defined by default", func() {
-			var mockTargetPtr = subject.GetTarget().Addr().Interface()
-			Expect(mockTargetPtr).To(Equal(target))
-		})
-	}
-
 	Describe("MockTarget", func() {
-	    Context("when creating a new GMock with a target", func() {
-			someVar := "some variable to mock"
+
+		Context("when creating a new GMock with a target", func() {
 
 			Context("and the target is not passed as a pointer", func() {
 				BeforeEach(func() {
@@ -73,52 +64,66 @@ var _ = Describe("GMock", func() {
 					}
 				})
 
-				It("should not have altered the value of the target", func() {
-					Expect(someVar).To(Equal("some variable to mock"))
+				It("should not panic", func() {
+					Expect(panicked).To(BeFalse())
 				})
 
-				validMockTests(&someVar)
+				It("should return a valid GMock object", func() {
+					Expect(subject).NotTo(BeNil())
+				})
+
+				It("should not have altered the value of the target", func() {
+					Expect(someVar).To(Equal(kOriginalValue))
+				})
+
+				It("should have backed up the pointer to the original target", func() {
+					var originalPtr = subject.GetOriginal().Addr().Interface()
+					Expect(originalPtr).To(Equal(&someVar))
+				})
+
+				It("should not have a mock value defined by default", func() {
+					var mockTargetPtr = subject.GetTarget().Addr().Interface()
+					Expect(mockTargetPtr).To(Equal(&someVar))
+				})
 			})
 	    })
 	})
 
 	Describe("GMock", func() {
-		someVar := "some variable to mock"
 
 		BeforeEach(func() {
-		    constructSubject = func() {
+		    constructSubject = func() { // Construct a valid GMock for this set of tests
 				subject = CreateMockWithTarget(&someVar)
 			}
 		})
 
 	    Context("when calling Replace on a GMock object with a valid mock value", func() {
-			mockVar := "this is a fake value"
 
 	        JustBeforeEach(func() { // It has to be a JustBeforeEach so that it happens after subject is constructed
-	            subject.Replace(mockVar)
+	            subject.Replace(mockValue)
 	        })
 
 			It("should replace the value in the original var with the mock value", func() {
-			    Expect(someVar).To(Equal(mockVar))
+			    Expect(someVar).To(Equal(kMockValue))
+			})
+
+			It("should have retained the original value for restoring later", func() {
+				Expect(subject.GetOriginal().Interface()).To(Equal(kOriginalValue))
 			})
 
 			It("should have a Target that points to the mock value", func() {
-			    Expect(subject.GetTarget().Interface()).To(Equal(mockVar))
-			})
-
-			It("should have an unaltered pointer to the original target", func() {
-			    originalPtr := subject.GetOriginal().Addr().Interface()
-				Expect(originalPtr).To(Equal(&someVar))
+			    Expect(subject.GetTarget().Interface()).To(Equal(mockValue))
 			})
 	    })
 
 		Context("when calling Replace on a GMock object with an invalid mock value", func() {
+
 			Context("- mock value with a different type", func() {
-				mockVar := 21
+				invalidMockValue := 21
 
 				JustBeforeEach(func() {
 					defer panicRecover()
-					subject.Replace(mockVar)
+					subject.Replace(invalidMockValue)
 				})
 
 				It("should have panicked", func() {
