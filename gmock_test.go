@@ -9,6 +9,7 @@ import (
 const (
 	kOriginalValue = "original value"
 	kMockValue = "mock value"
+	kSecondMockValue = "second mock value"
 )
 
 var _ = Describe("GMock", func() {
@@ -200,6 +201,22 @@ var _ = Describe("GMock", func() {
 
 			It("should have mocked the variable right away", func() {
 			    Expect(someVar).To(Equal(kMockValue))
+			})
+
+			Context("when Replace is called a second time", func() {
+				secondMockValue := kSecondMockValue
+
+				JustBeforeEach(func() {
+				    subject.Replace(secondMockValue)
+				})
+
+				It("should have mocked the variable again, with the second mock value", func() {
+				    Expect(someVar).To(Equal(kSecondMockValue))
+				})
+
+				It("should contain a copy of the original value in Original, and not of the first mocked value (which is lost)", func() {
+				    Expect(subject.GetOriginal().Interface()).To(Equal(kOriginalValue))
+				})
 			})
 		})
 	})
