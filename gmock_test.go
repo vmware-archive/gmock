@@ -162,6 +162,27 @@ var _ = Describe("GMock", func() {
 				})
 			})
 		})
+
+		Context("before calling Restore on a GMock with a mock value set", func() {
+
+			JustBeforeEach(func() {
+			    subject.Replace(mockValue)
+			})
+
+			It("the target should equal to the mock value", func() {
+			    Expect(someVar).To(Equal(kMockValue))
+			})
+
+			Context("when Restore is called", func() {
+			    JustBeforeEach(func() {
+			        subject.Restore()
+			    })
+
+				It("should have restored the target to the original value", func() {
+				    Expect(someVar).To(Equal(kOriginalValue))
+				})
+			})
+		})
 	})
 	
 })
