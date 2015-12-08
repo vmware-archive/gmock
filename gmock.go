@@ -12,7 +12,7 @@ type GMock struct {
 func CreateMockWithTarget(targetPtr interface{}) *GMock {
 	targetValue := reflect.ValueOf(targetPtr)
 	if targetValue.Kind() != reflect.Ptr {
-		panic("Target needs to be a pointer")
+		panic("GMock: Target needs to be a pointer")
 	}
 
 	mock := &GMock{}
