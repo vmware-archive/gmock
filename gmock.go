@@ -9,16 +9,21 @@ type GMock struct {
 	original reflect.Value
 }
 
-func MockTarget(targetVar interface{}) *GMock {
+func CreateMockWithTarget(targetPtr interface{}) *GMock {
+	targetValue := reflect.ValueOf(targetPtr)
+	if targetValue.Kind() != reflect.Ptr {
+		panic("Target needs to be a pointer")
+	}
+
 	mock := &GMock{}
-	mock.target = reflect.ValueOf(targetVar).Elem()
-	mock.target = reflect.New(mock.target.Type()).Elem()
+	mock.target = targetValue.Elem()
+	mock.original = reflect.New(mock.target.Type()).Elem()
 	mock.original.Set(mock.target)
 	return mock
 }
 
 func MockTargetWithValue(targetVar interface{}, mockValue interface{}) *GMock {
-	mock := MockTarget(targetVar)
+	mock := CreateMockWithTarget(targetVar)
 	mock.Replace(mockValue)
 	return mock
 }
