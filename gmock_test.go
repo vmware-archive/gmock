@@ -73,6 +73,10 @@ var _ = Describe("GMock", func() {
 					}
 				})
 
+				It("should not have altered the value of the target", func() {
+					Expect(someVar).To(Equal("some variable to mock"))
+				})
+
 				validMockTests(&someVar)
 			})
 	    })
