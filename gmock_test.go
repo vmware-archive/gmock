@@ -185,4 +185,23 @@ var _ = Describe("GMock", func() {
 		})
 	})
 	
+	Describe("MockTargetWithValue", func() {
+
+		It("the target should be unaltered before the constructor is called", func() {
+		    Expect(someVar).To(Equal(kOriginalValue))
+		})
+
+		Context("when constructor with pre-assigned mock value is called", func() {
+			BeforeEach(func() {
+				constructSubject = func() {
+					subject = MockTargetWithValue(&someVar, mockValue)
+				}
+			})
+
+			It("should have mocked the variable right away", func() {
+			    Expect(someVar).To(Equal(kMockValue))
+			})
+		})
+	})
+
 })
