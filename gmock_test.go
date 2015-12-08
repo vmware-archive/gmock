@@ -82,4 +82,65 @@ var _ = Describe("GMock", func() {
 	    })
 	})
 
+	Describe("GMock", func() {
+		someVar := "some variable to mock"
+
+		BeforeEach(func() {
+		    constructSubject = func() {
+				subject = CreateMockWithTarget(&someVar)
+			}
+		})
+
+	    Context("when calling Replace on a GMock object with a valid mock value", func() {
+			mockVar := "this is a fake value"
+
+	        JustBeforeEach(func() { // It has to be a JustBeforeEach so that it happens after subject is constructed
+	            subject.Replace(mockVar)
+	        })
+
+			It("should replace the value in the original var with the mock value", func() {
+			    Expect(someVar).To(Equal(mockVar))
+			})
+
+			It("should have a Target that points to the mock value", func() {
+			    Expect(subject.GetTarget().Interface()).To(Equal(mockVar))
+			})
+
+			It("should have an unaltered pointer to the original target", func() {
+			    originalPtr := subject.GetOriginal().Addr().Interface()
+				Expect(originalPtr).To(Equal(&someVar))
+			})
+	    })
+
+		Context("when calling Replace on a GMock object with an invalid mock value", func() {
+			Context("- mock value with a different type", func() {
+				mockVar := 21
+
+				JustBeforeEach(func() {
+					defer panicRecover()
+					subject.Replace(mockVar)
+				})
+
+				It("should have panicked", func() {
+					Expect(panicked).To(BeTrue())
+				})
+			})
+
+			Context("- mock value is nil", func() {
+			    JustBeforeEach(func() {
+					defer panicRecover()
+			        subject.Replace(nil)
+			    })
+
+				It("should not have panicked", func() {
+				    Expect(panicked).To(BeFalse())
+				})
+
+				It("should have assigned a default value of that type to the mock", func() {
+				    Expect(someVar).To(Equal(""))
+				})
+			})
+		})
+	})
+	
 })
