@@ -118,6 +118,10 @@ var _ = Describe("GMock", func() {
 
 		Context("when calling Replace on a GMock object with an invalid mock value", func() {
 
+			It("should not have panicked when creating the mock", func() {
+			    Expect(panicked).To(BeFalse())
+			})
+
 			Context("- mock value with a different type", func() {
 				invalidMockValue := 21
 
@@ -128,6 +132,18 @@ var _ = Describe("GMock", func() {
 
 				It("should have panicked", func() {
 					Expect(panicked).To(BeTrue())
+				})
+			})
+
+			Context("- mock value is a pointer to the same type as the target", func() {
+
+				JustBeforeEach(func() {
+				    defer panicRecover()
+					subject.Replace(&mockValue)
+				})
+
+				It("should have panicked", func() {
+				    Expect(panicked).To(BeTrue())
 				})
 			})
 
