@@ -75,8 +75,6 @@ Using the constructor `MockTargetWithValue(_, _)`
 
 The target variable is immediately mocked with the value specified in the second parameter
 
-[Playground link](https://travis-ci.org/cfmobile/gmock.svg?branch=master)]
-
 ```go
 package main
 import (
