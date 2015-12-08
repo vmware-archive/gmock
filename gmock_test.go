@@ -217,6 +217,16 @@ var _ = Describe("GMock", func() {
 				It("should contain a copy of the original value in Original, and not of the first mocked value (which is lost)", func() {
 				    Expect(subject.GetOriginal().Interface()).To(Equal(kOriginalValue))
 				})
+
+				Context("and when Restore is finally called", func() {
+					JustBeforeEach(func() {
+					    subject.Restore()
+					})
+
+					It("should restore the initial value of the variable", func() {
+					    Expect(someVar).To(Equal(kOriginalValue))
+					})
+				})
 			})
 		})
 	})

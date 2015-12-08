@@ -9,5 +9,5 @@ import (
 
 func TestGmock(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Gmock Suite")
+	RunSpecs(t, "GMock Test Suite")
 }
