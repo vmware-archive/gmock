@@ -3,6 +3,8 @@ A mocking utility for Go.
 
 This was created with unit testing in mind, to make it easier to isolate components.
 
+Compatibility verified with Go 1.4 and up.
+
 ##Installation
 
 Just use go get
